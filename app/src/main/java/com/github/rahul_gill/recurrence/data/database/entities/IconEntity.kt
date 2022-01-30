@@ -1,4 +1,4 @@
-package com.github.rahul_gill.recurrence.data.entities
+package com.github.rahul_gill.recurrence.data.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="icons_string_array" translatable="false">
+        <item>ic_baseline_done_24</item>
+        <item>ic_baseline_snooze_24</item>
+    </string-array>
+
+</resources>

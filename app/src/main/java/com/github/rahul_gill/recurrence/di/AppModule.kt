@@ -2,8 +2,9 @@ package com.github.rahul_gill.recurrence.di
 
 import android.content.Context
 import androidx.room.Room
-import com.github.rahul_gill.recurrence.data.ReminderDatabase
-import com.github.rahul_gill.recurrence.data.ReminderDatabaseDao
+import com.github.rahul_gill.recurrence.data.database.ReminderDatabase
+import com.github.rahul_gill.recurrence.data.database.ReminderDatabaseDao
+import com.github.rahul_gill.recurrence.data.database.TypeConverters
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,17 +17,19 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun getEventDatabaseInstance(@ApplicationContext context: Context): ReminderDatabase{
+    fun getEventDatabaseInstance(@ApplicationContext context: Context): ReminderDatabase {
         return Room.databaseBuilder(
             context,
             ReminderDatabase::class.java,
             "REMINDER_DATABASE"
-        ).build()
+        )
+        .addTypeConverter(TypeConverters())
+        .build()
     }
 
     @Singleton
     @Provides
-    fun getEventDatabaseDao(database: ReminderDatabase) : ReminderDatabaseDao{
+    fun getEventDatabaseDao(database: ReminderDatabase) : ReminderDatabaseDao {
         return database.reminderDatabaseDao
     }
 }
