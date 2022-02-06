@@ -1,11 +1,14 @@
 package com.github.rahul_gill.recurrence.notifications
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.github.rahul_gill.recurrence.R
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
@@ -15,6 +18,7 @@ import com.github.rahul_gill.recurrence.notifications.receivers.NagReceiver
 import com.github.rahul_gill.recurrence.notifications.receivers.SnoozeActionReceiver
 import com.github.rahul_gill.recurrence.ui.MainActivity
 import com.github.rahul_gill.recurrence.utils.Constants
+import com.github.rahul_gill.recurrence.utils.IconsUtil
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime
@@ -23,7 +27,6 @@ import javax.inject.Singleton
 
 
 @Singleton
-
 class NotificationManager @Inject constructor(val preferencesManager: PreferencesManager){
     suspend fun createNotification(context: Context, reminder: ReminderEntity) {
         // Create intent for notification onClick behaviour
@@ -38,9 +41,9 @@ class NotificationManager @Inject constructor(val preferencesManager: Preference
             putExtra(Constants.NOTIFICATION_ID, reminder.notificationId)
             PendingIntent.getBroadcast(context, reminder.notificationId, this, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
-        val imageResId = context.resources.getIdentifier(reminder.icon, "drawable", context.packageName)
+        val imageResId = IconsUtil.iconsMap[reminder.icon]!!//fixme
         val builder = NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(imageResId)
+            .setSmallIcon(R.drawable.ic_baseline_snooze_24)
             .setColor(Color.GREEN) //fixme what is happening
             .setStyle(NotificationCompat.BigTextStyle().bigText(reminder.content))
             .setContentTitle(reminder.title)
@@ -55,16 +58,15 @@ class NotificationManager @Inject constructor(val preferencesManager: Preference
             }
             builder.setDeleteIntent(pendingDismiss)
 
-            preferencesManager.nagMinutes
-                .combine(preferencesManager.nagSeconds){ minutes, seconds ->
+            preferencesManager.nagMinutes.combine(preferencesManager.nagSeconds){ minutes, seconds ->
                     LocalDateTime.now().plusSeconds(seconds.toLong()).plusMinutes(minutes.toLong())
-                }.first().let { calendar ->
-                    AlarmManager.setAlarm(
-                        context,
-                        Intent(context, NagReceiver::class.java),
-                        reminder.notificationId,
-                        calendar)
-                }
+            }.first().let { calendar ->
+                AlarmManager.setAlarm(
+                    context,
+                    Intent(context, NagReceiver::class.java),
+                    reminder.notificationId,
+                    calendar)
+            }
         }
 
         preferencesManager.notificationSoundUri.first().let { soundUri ->
@@ -99,6 +101,18 @@ class NotificationManager @Inject constructor(val preferencesManager: Preference
 
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                Constants.NOTIFICATION_CHANNEL_ID,
+                "Reminder",//TODO
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+
+        Log.d("DEBUG", "notification dispatched $builder")
         notificationManager.notify(reminder.notificationId, builder.build())
     }
 

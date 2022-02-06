@@ -1,4 +1,4 @@
-package com.github.rahul_gill.recurrence.ui
+package com.github.rahul_gill.recurrence.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

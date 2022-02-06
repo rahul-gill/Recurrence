@@ -16,7 +16,6 @@ import javax.inject.Singleton
 private const val TAG = "PreferencesManager"
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "preferences")
 
-
 @Singleton
 class PreferencesManager @Inject constructor(@ApplicationContext context: Context) {
 
@@ -50,13 +49,16 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         get() = preferencesFlow.map { pref -> pref[PreferencesKeys.CHECK_BOX_VIBRATE] ?: false }
 
     val checkBoxOngoing: Flow<Boolean>
-        get() = preferencesFlow.map { pref -> pref[PreferencesKeys.CHECK_BOX_ONGOING] ?: true }
+        get() = preferencesFlow.map { pref -> pref[PreferencesKeys.CHECK_BOX_ONGOING] ?: false }
 
     val checkBoxMarkAsDone: Flow<Boolean>
         get() = preferencesFlow.map { pref -> pref[PreferencesKeys.CHECK_BOX_MARK_AS_DONE] ?: false }
 
     val checkBoxSnooze: Flow<Boolean>
         get() = preferencesFlow.map { pref -> pref[PreferencesKeys.CHECK_BOX_SNOOZE] ?: false }
+
+    val themeIsDark: Flow<Boolean?>
+        get() = preferencesFlow.map { pref -> pref[PreferencesKeys.IS_THEME_DARK] }
 
     private object PreferencesKeys {
         val CHECK_BOX_NAGGING = booleanPreferencesKey("checkBoxNagging")
@@ -68,5 +70,6 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
         val CHECK_BOX_VIBRATE = booleanPreferencesKey("checkBoxVibrate")
         val CHECK_BOX_MARK_AS_DONE = booleanPreferencesKey("checkBoxMarkAsDone")
         val CHECK_BOX_SNOOZE = booleanPreferencesKey("checkBoxSnooze")
+        val IS_THEME_DARK = booleanPreferencesKey("isThemeDark")
     }
 }

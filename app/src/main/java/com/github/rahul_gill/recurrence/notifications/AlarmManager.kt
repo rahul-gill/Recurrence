@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import com.github.rahul_gill.recurrence.data.database.ReminderDatabaseDao
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity.RepetitionType.*
@@ -20,7 +19,7 @@ object AlarmManager {
         (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).let { alarmManager ->
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
-                calendar.toEpochSecond(ZoneOffset.systemDefault() as ZoneOffset),
+                (calendar.atZone(ZoneOffset.systemDefault()).toEpochSecond() * 1000),
                 intent.run {
                     putExtra(Constants.NOTIFICATION_ID, notificationId)
                     PendingIntent.getBroadcast(context, notificationId, this, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)

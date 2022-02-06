@@ -53,21 +53,3 @@ val DaysOfWeekBitset.daysOfWeek
     }
 
 fun DaysOfWeekBitset.hasDay(day: java.time.DayOfWeek) = ((this shr day.value) and 1) == 1
-
-
-//foreignKeys = [
-//ForeignKey(
-//entity = PickerColorEntity::class,
-//parentColumns = arrayOf("pickerColor"),
-//childColumns = arrayOf("color"),
-//onDelete = ForeignKey.CASCADE,
-//onUpdate = ForeignKey.CASCADE
-//),
-//ForeignKey(
-//entity = IconEntity::class,
-//parentColumns = arrayOf("id"),
-//childColumns = arrayOf("icon"),
-//onDelete = ForeignKey.CASCADE,
-//onUpdate = ForeignKey.CASCADE
-//)
-//]

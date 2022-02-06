@@ -8,6 +8,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/home/ashen-one/AndroidStudioProjects/myKey.jks')
+            storePassword 'p5g4itmlx3'
+            keyAlias 'key0'
+            keyPassword 'p5g4itmlx3'
+        }
+    }
     compileSdk 31
 
     defaultConfig {
@@ -23,7 +31,9 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
@@ -80,14 +90,11 @@ dependencies {
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
     implementation "com.google.android.material:compose-theme-adapter:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.activity:activity-compose:$compose_version"
+    implementation "androidx.activity:activity-compose:1.4.0"
     implementation "io.github.raamcosta.compose-destinations:core:$compose_destinations_version"
     ksp "io.github.raamcosta.compose-destinations:ksp:$compose_destinations_version"
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
-
-
-    implementation "com.chargemap.compose:numberpicker:0.0.11"
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
@@ -110,10 +117,7 @@ dependencies {
     // Datastore
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-}
 
-android.sourceSets.all {
-    kotlin.srcDir("src/$name/kotlin")
+    implementation "com.chargemap.compose:numberpicker:0.0.11"
 }

@@ -1,4 +1,4 @@
-package com.github.rahul_gill.recurrence.ui
+package com.github.rahul_gill.recurrence.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,11 +15,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.R
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
+import com.github.rahul_gill.recurrence.ui.AppViewModel
 import com.github.rahul_gill.recurrence.ui.components.ColorPicker
 import com.github.rahul_gill.recurrence.ui.components.DatePicker
 import com.github.rahul_gill.recurrence.ui.components.IconPicker
 import com.github.rahul_gill.recurrence.ui.components.TimePicker
 import com.github.rahul_gill.recurrence.ui.theme.AppTheme
+import com.github.rahul_gill.recurrence.utils.IconsUtil
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.first
@@ -101,11 +103,12 @@ fun CreateScreen(
                             title = name,
                             content = description,
                             dateTime = LocalDateTime.of(date.value, time.value),
-                            repeatType = ReminderEntity.RepetitionType.DOES_NOT_REPEAT,
-                            foreverState = false,
-                            numberToShow = 1,
+                            repeatType = ReminderEntity.RepetitionType.DOES_NOT_REPEAT,//TODO
+                            foreverState = false,//TODO
+                            numberToShow = 1,//TODO
                             numberShown = 0,
                             icon = icon,
+
                             color =color,
                             daysOfWeek = 0,
                             interval = 0
@@ -192,7 +195,7 @@ fun CreateScreen(
                 .fillMaxWidth()
         ){
             Icon(
-                imageVector = Icons.Default.Notifications,
+                imageVector = IconsUtil.iconsMap[icon]!!,
                 contentDescription = "",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
             )
@@ -209,7 +212,9 @@ fun CreateScreen(
             Icon(
                 imageVector = Icons.Default.Palette,
                 contentDescription = "",
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .background(Color(color))
             )
             Text(text = LocalContext.current.getString(R.string.default_colour),
                 modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp)
@@ -235,6 +240,7 @@ fun CreateScreen(
         Divider(thickness = 0.5.dp, color = Color.Gray)
     }
 }
+
 
 @Composable
 fun myTextFieldColors() = TextFieldDefaults.textFieldColors(

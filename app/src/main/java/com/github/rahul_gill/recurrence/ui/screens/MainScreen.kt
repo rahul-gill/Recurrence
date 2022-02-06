@@ -1,4 +1,4 @@
-package com.github.rahul_gill.recurrence.ui
+package com.github.rahul_gill.recurrence.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -21,26 +22,59 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
+import com.github.rahul_gill.recurrence.ui.AppViewModel
+import com.github.rahul_gill.recurrence.ui.screens.destinations.CreateScreenDestination
+import com.github.rahul_gill.recurrence.ui.screens.destinations.SettingsScreenDestination
+import com.github.rahul_gill.recurrence.ui.theme.AppTheme
 import com.github.rahul_gill.recurrence.utils.IconsUtil
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@Destination(start = true)
 @Composable
-fun RemindersListScreen() {
+fun MainScreen(navigator: DestinationsNavigator) = AppTheme {
     val viewModel: AppViewModel = hiltViewModel()
     val reminders = viewModel.activeRemindersList.collectAsState(initial = emptyList())
 
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Title") },
+                actions = {
+                    IconButton(onClick = { navigator.navigate(SettingsScreenDestination) }) {
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { navigator.navigate(CreateScreenDestination) }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "")
+            }
+        },
+        content = {
+            RemindersListScreen(reminders.value)
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RemindersListScreen(reminders: List<ReminderEntity> = List(5){ index -> sampleReminder(index) }) {
+
     LazyColumn{
-        items(reminders.value, { it.notificationId }){ reminder ->
+        items(reminders, { it.notificationId }){ reminder ->
             ReminderItem(reminder)
         }
     }
 }
 @Preview
 @Composable
-fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder){
+fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder(1)){
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(4.dp),
         elevation = 2.dp,
     ) {
         Row(Modifier.padding(4.dp)) {
@@ -49,8 +83,8 @@ fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder){
                 contentDescription = "",
                 modifier = Modifier
                     .background(color = Color(reminderEntity.color), shape = CircleShape)
-                    .padding(4.dp)
-                    .align(CenterVertically),
+                    .padding(8.dp)
+                    .align(Alignment.CenterVertically),
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.surface)
             )
             Column(
@@ -72,8 +106,8 @@ fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder){
     }
 }
 
-val sampleReminder = ReminderEntity(
-    notificationId =  1,
+fun sampleReminder(notificationId: Int) = ReminderEntity(
+    notificationId =  notificationId,
     title = "name",
     content = "description",
     dateTime = LocalDateTime.now(),
