@@ -8,7 +8,7 @@ import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,7 +18,7 @@ class AppViewModel @Inject constructor(
 ) : ViewModel() {
 
     fun addReminder(reminder: ReminderEntity) = viewModelScope.launch(Dispatchers.IO) {
-        remindersRepository.addReminder(reminder)
+        remindersRepository.addReminder(reminder.apply { notificationId = lastNotificationId.first() + 1 })
     }
 
     private val _activeRemindersList =  MutableStateFlow<List<ReminderEntity>>(emptyList())

@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import com.github.rahul_gill.recurrence.data.database.ReminderDatabaseDao
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
-import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity.RepetitionType.*
+import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType.*
 import com.github.rahul_gill.recurrence.notifications.receivers.AlarmReceiver
 import com.github.rahul_gill.recurrence.utils.Constants
 import java.time.LocalDateTime
@@ -48,8 +48,11 @@ object AlarmManager {
                 var modifierCalendar =  it.plusDays(1)
                 for (i in 1..7) {
                     val dayOfWeek = java.time.DayOfWeek.of(i)
-                    if (reminder.occursOnDayOfWeek(dayOfWeek)) {
-                        modifierCalendar = modifierCalendar.with(TemporalAdjusters.next(dayOfWeek))
+                    if (reminder.timeForDaysOfWeek.containsKey(dayOfWeek)) {
+                        modifierCalendar = LocalDateTime.of(
+                            modifierCalendar.toLocalDate().with(TemporalAdjusters.next(dayOfWeek)),
+                            reminder.timeForDaysOfWeek[dayOfWeek]!!
+                        )
                         break
                     }
                 }

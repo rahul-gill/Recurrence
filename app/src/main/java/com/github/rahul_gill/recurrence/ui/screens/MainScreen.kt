@@ -1,5 +1,6 @@
 package com.github.rahul_gill.recurrence.ui.screens
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -22,15 +23,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
+import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
 import com.github.rahul_gill.recurrence.ui.AppViewModel
-import com.github.rahul_gill.recurrence.ui.screens.destinations.CreateScreenDestination
-import com.github.rahul_gill.recurrence.ui.screens.destinations.SettingsScreenDestination
+import com.github.rahul_gill.recurrence.ui.destinations.CreateScreenDestination
+import com.github.rahul_gill.recurrence.ui.destinations.SettingsScreenDestination
 import com.github.rahul_gill.recurrence.ui.theme.AppTheme
 import com.github.rahul_gill.recurrence.utils.IconsUtil
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
 
 @Destination(start = true)
 @Composable
@@ -66,7 +69,13 @@ fun RemindersListScreen(reminders: List<ReminderEntity> = List(5){ index -> samp
 
     LazyColumn{
         items(reminders, { it.notificationId }){ reminder ->
-            ReminderItem(reminder)
+            AnimatedVisibility(
+                visible = reminder in reminders,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                ReminderItem(reminder)
+            }
         }
     }
 }
@@ -111,7 +120,7 @@ fun sampleReminder(notificationId: Int) = ReminderEntity(
     title = "name",
     content = "description",
     dateTime = LocalDateTime.now(),
-    repeatType = ReminderEntity.RepetitionType.DOES_NOT_REPEAT,
+    repeatType = RepetitionType.DOES_NOT_REPEAT,
     foreverState = false,
     numberToShow = 1,
     numberShown = 0,

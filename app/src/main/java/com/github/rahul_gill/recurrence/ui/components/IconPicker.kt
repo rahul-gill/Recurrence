@@ -22,7 +22,7 @@ import com.github.rahul_gill.recurrence.utils.IconsUtil
 
 
 private const val itemsInSingleRow = 5
-private val iconsSpacing = 16.dp
+private val iconsSpacing = 4.dp
 
 @Preview
 @Composable
@@ -33,7 +33,7 @@ fun IconPicker(onIconSelected: (String) -> Unit = {}, onDismissRequest: () -> Un
                 color = MaterialTheme.colors.surface,
                 shape = RoundedCornerShape(size = 16.dp)
             )
-            .fillMaxSize(fraction = 1f)
+            .fillMaxSize()
         ) {
             Text(
                 text = LocalContext.current.getString(R.string.select_icon),
@@ -44,7 +44,8 @@ fun IconPicker(onIconSelected: (String) -> Unit = {}, onDismissRequest: () -> Un
             val iconsList = IconsUtil.iconsMap.toList()
             LazyColumn(Modifier
                 .align(CenterHorizontally)
-                .padding(start = 15.dp + iconsSpacing,end = 16.dp, bottom = 16.dp)
+                .padding(start = iconsSpacing, bottom = 16.dp)
+                .fillMaxWidth()
             ){
                 items(iconsList.size / itemsInSingleRow){ columnNumber ->
                     val startIndex = columnNumber * itemsInSingleRow

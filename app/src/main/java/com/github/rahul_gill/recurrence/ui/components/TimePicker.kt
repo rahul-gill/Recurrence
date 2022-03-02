@@ -33,6 +33,22 @@ fun TimePicker(onTimeSelected: (LocalTime) -> Unit, onDismissRequest: () -> Unit
                     shape = RoundedCornerShape(size = 16.dp)
                 )
         ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colors.primary,
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = LocalContext.current.getString(R.string.select_time_dialog),
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.onPrimary
+                )
+                Spacer(modifier = Modifier.size(24.dp))
+            }
             CustomTimePickerView(onTimeSelected = {
                 selTime.value = it
             })

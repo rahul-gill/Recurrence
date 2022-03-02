@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.rahul_gill.recurrence.BuildConfig
 import com.github.rahul_gill.recurrence.R
-import com.github.rahul_gill.recurrence.ui.screens.destinations.CreateScreenDestination
+import com.github.rahul_gill.recurrence.ui.destinations.CreateScreenDestination
 import com.github.rahul_gill.recurrence.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator

@@ -8,7 +8,7 @@
     <string name="select_time_dialog">SELECT TIME</string>
     <string name="go_back">Go back</string>
     <string name="title">Title</string>
-    <string name="content_hint">Add notification content</string>
+    <string name="content_hint">Notification content</string>
     <string name="action_show_now">Show now</string>
     <string name="date_today">Today</string>
     <string name="default_icon">Default icon</string>
@@ -78,4 +78,12 @@
     <string name="thanks_to">Thanks to</string>
     <string name="translator">Translator</string>
     <string name="rahul_gill">Rahul Gill</string>
+
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
 </resources>
