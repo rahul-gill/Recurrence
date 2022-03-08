@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.R
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
 import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
+import com.github.rahul_gill.recurrence.data.database.entities.TimeForDaysOfWeek
 import com.github.rahul_gill.recurrence.ui.AppViewModel
 import com.github.rahul_gill.recurrence.ui.components.ColorPicker
 import com.github.rahul_gill.recurrence.ui.components.DatePicker
@@ -41,7 +42,7 @@ import java.time.format.DateTimeFormatter
 fun CreateScreen(
     navigator: DestinationsNavigator,
     repetitionTypeResultRecipient: ResultRecipient<ReminderRepeatBottomSheetDestination, RepetitionType>,
-    daysOfWeekResultRecipient: ResultRecipient<TimeOnWeekDaysPickerDestination, Map<DayOfWeek, LocalTime>>
+    daysOfWeekResultRecipient: ResultRecipient<TimeOnWeekDaysPickerDestination, TimeForDaysOfWeek>
 ) = AppTheme{
     val context = LocalContext.current
     val viewModel: AppViewModel = hiltViewModel()
@@ -109,7 +110,7 @@ fun CreateScreen(
                         icon = icon,
                         color =color,
                         repeatType = repetitionType,
-                        timeForDaysOfWeek = timeForDaysOfWeeks,
+                        timeForDaysOfWeek = timeForDaysOfWeeks as TimeForDaysOfWeek,
                         interval = 0
                     )
                     )

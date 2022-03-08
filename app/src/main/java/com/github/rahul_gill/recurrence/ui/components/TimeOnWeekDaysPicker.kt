@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.github.rahul_gill.recurrence.R
+import com.github.rahul_gill.recurrence.data.database.entities.TimeForDaysOfWeek
 import com.github.rahul_gill.recurrence.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -24,7 +25,7 @@ import java.time.format.DateTimeFormatter
 @Destination(style = DestinationStyle.BottomSheet::class)
 @Composable
 fun TimeOnWeekDaysPicker(
-    resultNavigator: ResultBackNavigator<Map<DayOfWeek, LocalTime>>
+    resultNavigator: ResultBackNavigator<TimeForDaysOfWeek>
 ) = AppTheme{
     var weekDayToTimeMap by remember { mutableStateOf( List(7){ LocalTime.now() } ) }
     var checked by remember { mutableStateOf( List(7){ true } ) }
@@ -55,7 +56,7 @@ fun TimeOnWeekDaysPicker(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = weekDayToTimeMap[weekDayIndex] != null,
+                        checked = checked[weekDayIndex],
                         onCheckedChange = {
                             checked = checked.toMutableList().apply {
                                 this[weekDayIndex] = it
@@ -70,9 +71,7 @@ fun TimeOnWeekDaysPicker(
                             .clickable {
                                 checked = checked
                                     .toMutableList()
-                                    .apply {
-                                        this[weekDayIndex] = !this[weekDayIndex]
-                                    }
+                                    .apply { this[weekDayIndex] = !this[weekDayIndex] }
                             }
                     )
                     OutlinedButton(
@@ -90,7 +89,7 @@ fun TimeOnWeekDaysPicker(
         Button(
             onClick = {
                 resultNavigator.navigateBack(
-                    result = mutableMapOf<DayOfWeek, LocalTime>().apply {
+                    result = TimeForDaysOfWeek().apply {
                         for(i in checked.indices)
                             if(checked[i])
                                 put(DayOfWeek.of(i+1), weekDayToTimeMap[i])

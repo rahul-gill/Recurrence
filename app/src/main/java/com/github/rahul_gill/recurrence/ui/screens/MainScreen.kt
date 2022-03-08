@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
 import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
+import com.github.rahul_gill.recurrence.data.database.entities.TimeForDaysOfWeek
 import com.github.rahul_gill.recurrence.ui.AppViewModel
 import com.github.rahul_gill.recurrence.ui.destinations.CreateScreenDestination
 import com.github.rahul_gill.recurrence.ui.destinations.SettingsScreenDestination
@@ -126,6 +127,6 @@ fun sampleReminder(notificationId: Int) = ReminderEntity(
     numberShown = 0,
     icon = "Notifications",
     color = 0xFFFF0000,
-    daysOfWeek = 0,
+    timeForDaysOfWeek = TimeForDaysOfWeek(),
     interval = 0
 )

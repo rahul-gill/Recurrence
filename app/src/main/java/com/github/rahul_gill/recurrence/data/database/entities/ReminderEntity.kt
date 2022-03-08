@@ -1,7 +1,10 @@
 package com.github.rahul_gill.recurrence.data.database.entities
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -22,13 +25,16 @@ data class ReminderEntity(
     var icon: String,
     var color: Long, // must be in argb
     var interval: Long,
-    var timeForDaysOfWeek: Map<DayOfWeek, LocalTime>
+    var timeForDaysOfWeek: TimeForDaysOfWeek
 ){
     fun occursOnDayOfWeek(day: DayOfWeek)
 //        = daysOfWeek.hasDay(day)
         = timeForDaysOfWeek.containsKey(day)
 }
 
+@Serializable
+@Parcelize
+class TimeForDaysOfWeek: HashMap<DayOfWeek, LocalTime>(), Parcelable
 
 enum class RepetitionType{
     DOES_NOT_REPEAT,

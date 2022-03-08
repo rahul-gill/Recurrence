@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,7 +14,6 @@ import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
-
 
 @Destination(style = DestinationStyle.BottomSheet::class)
 @Composable
@@ -27,6 +27,7 @@ fun ReminderRepeatBottomSheet(
         RepetitionType.WEEKLY to "Every Week",
         RepetitionType.MONTHLY to "Every Month",
         RepetitionType.YEARLY to "Every Year",
+        RepetitionType.SPECIFIC_DAYS to "Specific Weekdays",
         RepetitionType.ADVANCED to "Advanced"
     )
 
@@ -42,7 +43,8 @@ fun ReminderRepeatBottomSheet(
             ) {
                 Text(
                     text = repeatType.value,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
+                    style = MaterialTheme.typography.body1
                 )
             }
         }
