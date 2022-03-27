@@ -25,8 +25,8 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("DEBUG", "received intent $intent")
         GlobalScope.launch {
-            dao.getReminder(intent.getIntExtra(Constants.NOTIFICATION_ID, 0)).first().let { reminder ->
-                reminder.numberShown += 1
+            dao.getReminder(intent.getIntExtra(Constants.NOTIFICATION_ID, 0)).first().let { prev ->
+                val reminder = prev.copy(numberShown = prev.numberShown + 1)
                 dao.addReminder(reminder)
 
                 Log.d("DEBUG", "sending notification $reminder")

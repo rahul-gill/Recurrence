@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.rahul_gill.recurrence.data.RemindersRepository
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
+import com.github.rahul_gill.recurrence.data.preferences.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +15,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    val remindersRepository: RemindersRepository
+    val remindersRepository: RemindersRepository,
+    val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     fun addReminder(reminder: ReminderEntity) = viewModelScope.launch(Dispatchers.IO) {
-        remindersRepository.addReminder(reminder.apply { notificationId = lastNotificationId.first() + 1 })
+        remindersRepository.addReminder(reminder.copy(notificationId = lastNotificationId.first() + 1))
     }
 
     private val _activeRemindersList =  MutableStateFlow<List<ReminderEntity>>(emptyList())
@@ -46,4 +48,31 @@ class AppViewModel @Inject constructor(
             }
         }
     }
+
+    fun setNotificationProperties(
+        checkBoxNagging: Boolean? = null,
+        nagMinutes: Int? = null,
+        nagSeconds: Int? = null,
+        checkBoxLed: Boolean? = null,
+        notificationSoundUri: String? = null,
+        checkBoxVibrate: Boolean? = null,
+        checkBoxOngoing: Boolean? = null,
+        checkBoxMarkAsDone: Boolean? = null,
+        checkBoxSnooze: Boolean? = null
+    ){
+        viewModelScope.launch {
+            preferencesManager.setNotificationProperties(
+                checkBoxNagging,
+                nagMinutes,
+                nagSeconds,
+                checkBoxLed,
+                notificationSoundUri,
+                checkBoxVibrate,
+                checkBoxOngoing,
+                checkBoxMarkAsDone,
+                checkBoxSnooze
+            )
+        }
+    }
+
 }

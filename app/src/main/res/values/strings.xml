@@ -13,7 +13,7 @@
     <string name="date_today">Today</string>
     <string name="default_icon">Default icon</string>
     <string name="default_colour">Default colour</string>
-    <string name="select_icon">Select an icon</string>
+    <string name="select_icon">Pick an icon</string>
     <string name="custom_icon">Custom icon</string>
     <string name="mark_as_done">Mark as done</string>
     <string name="select_colour">Select a colour</string>
@@ -86,4 +86,5 @@
     <string name="friday">Friday</string>
     <string name="saturday">Saturday</string>
     <string name="sunday">Sunday</string>
+    <string name="notification_preferences">Notification Preferences</string>
 </resources>

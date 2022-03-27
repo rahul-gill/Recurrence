@@ -116,4 +116,10 @@ dependencies {
     implementation "com.chargemap.compose:numberpicker:0.0.11"
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2'
+
+    // Dialogs
+    def dialogs_version = "0.7.0"
+    implementation "io.github.vanpra.compose-material-dialogs:core:$dialogs_version"
+    implementation "io.github.vanpra.compose-material-dialogs:color:$dialogs_version"
+    implementation "io.github.vanpra.compose-material-dialogs:datetime:$dialogs_version"
 }

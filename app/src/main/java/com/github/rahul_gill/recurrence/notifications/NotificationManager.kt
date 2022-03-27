@@ -5,9 +5,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.github.rahul_gill.recurrence.R
@@ -18,7 +18,9 @@ import com.github.rahul_gill.recurrence.notifications.receivers.NagReceiver
 import com.github.rahul_gill.recurrence.notifications.receivers.SnoozeActionReceiver
 import com.github.rahul_gill.recurrence.ui.MainActivity
 import com.github.rahul_gill.recurrence.utils.Constants
-import com.github.rahul_gill.recurrence.utils.IconsUtil
+import com.github.rahul_gill.recurrence.utils.IconsUtil.getDrawableByName
+import com.github.rahul_gill.recurrence.utils.IconsUtil.iconMapX
+import com.github.rahul_gill.recurrence.utils.argbToColorInt
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime
@@ -28,6 +30,10 @@ import javax.inject.Singleton
 
 @Singleton
 class NotificationManager @Inject constructor(val preferencesManager: PreferencesManager){
+    companion object{
+        private const val TAG = "NotificationManager"
+    }
+
     suspend fun createNotification(context: Context, reminder: ReminderEntity) {
         // Create intent for notification onClick behaviour
         val pending = Intent(context, MainActivity::class.java).run {
@@ -41,10 +47,11 @@ class NotificationManager @Inject constructor(val preferencesManager: Preference
             putExtra(Constants.NOTIFICATION_ID, reminder.notificationId)
             PendingIntent.getBroadcast(context, reminder.notificationId, this, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
-        val imageResId = IconsUtil.iconsMap[reminder.icon]!!//fixme
+//        val imageResId = //TODO
+
         val builder = NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_snooze_24)
-            .setColor(Color.GREEN) //fixme what is happening
+            .setSmallIcon(context.getDrawableByName(iconMapX[reminder.icon]!!))
+            .setColor(reminder.color.argbToColorInt())
             .setStyle(NotificationCompat.BigTextStyle().bigText(reminder.content))
             .setContentTitle(reminder.title)
             .setContentText(reminder.content)
@@ -70,19 +77,22 @@ class NotificationManager @Inject constructor(val preferencesManager: Preference
         }
 
         preferencesManager.notificationSoundUri.first().let { soundUri ->
-            builder.setSound(Uri.parse(soundUri))
+            builder.setSound(if(soundUri.isNotBlank()) Uri.parse(soundUri) else Settings.System.DEFAULT_NOTIFICATION_URI)
         }
-
         preferencesManager.checkBoxLed.first().let { if(it)
-            builder.setLights(Color.BLUE, 700, 1500)
+            builder.setLights(android.graphics.Color.BLUE, 700, 1500)
         }
 
         preferencesManager.checkBoxOngoing.first().let { if(it)
             builder.setOngoing(true)
         }
 
-        preferencesManager.checkBoxVibrate.first().let { if(it)
-            builder.setVibrate(longArrayOf(0, 300, 0))
+        preferencesManager.checkBoxVibrate.first().let {
+
+            if(it)
+            builder.setVibrate(longArrayOf(300, 300, 300,300)).also {
+                Log.d(TAG, "vibrate pattern ${longArrayOf(300, 300, 300,300)}")
+            }
         }
 
         preferencesManager.checkBoxMarkAsDone.first().let { if(it)
@@ -99,20 +109,21 @@ class NotificationManager @Inject constructor(val preferencesManager: Preference
             builder.addAction(R.drawable.ic_baseline_snooze_24, context.getString(R.string.snooze), pendingSnooze)
         }
 
-
+        builder.priority = NotificationManager.IMPORTANCE_HIGH
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 Constants.NOTIFICATION_CHANNEL_ID,
                 "Reminder",//TODO
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
+            if(preferencesManager.checkBoxVibrate.first()) channel.enableVibration(true)
             notificationManager.createNotificationChannel(channel)
         }
 
 
-        Log.d("DEBUG", "notification dispatched $builder")
+        Log.d(TAG, "notification dispatched ${builder.build()}")
         notificationManager.notify(reminder.notificationId, builder.build())
     }
 

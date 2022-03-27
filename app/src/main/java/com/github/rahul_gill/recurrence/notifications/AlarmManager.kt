@@ -28,9 +28,9 @@ object AlarmManager {
         }
     }
 
-    fun cancelAlarm(context: Context, intent: Intent?, notificationId: Int) {
+    fun cancelAlarm(context: Context, intent: Intent, notificationId: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent!!, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         alarmManager.cancel(pendingIntent)
     }
 
@@ -38,7 +38,7 @@ object AlarmManager {
     fun setNextAlarm(context: Context, reminder: ReminderEntity, dao: ReminderDatabaseDao) {
         val calendar = reminder.dateTime.withSecond(0)
 
-        reminder.dateTime = when(reminder.repeatType){
+        val newReminder = reminder.copy(dateTime = when(reminder.repeatType){
             HOURLY -> calendar.plusHours(reminder.interval)
             DAILY -> calendar.plusDays(reminder.interval)
             WEEKLY -> calendar.plusWeeks(reminder.interval)
@@ -61,11 +61,10 @@ object AlarmManager {
 
             ADVANCED ->  calendar //TODO()
             DOES_NOT_REPEAT ->  calendar
+        })
 
-        }
 
-
-        dao.addReminder(reminder)
-        setAlarm(context, Intent(context, AlarmReceiver::class.java), reminder.notificationId, calendar)
+        dao.addReminder(newReminder)
+        setAlarm(context, Intent(context, AlarmReceiver::class.java), newReminder.notificationId, calendar)
     }
 }

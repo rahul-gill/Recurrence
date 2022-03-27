@@ -1,9 +1,11 @@
 package com.github.rahul_gill.recurrence.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,7 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.R
@@ -19,18 +26,22 @@ import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
 import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
 import com.github.rahul_gill.recurrence.data.database.entities.TimeForDaysOfWeek
 import com.github.rahul_gill.recurrence.ui.AppViewModel
-import com.github.rahul_gill.recurrence.ui.components.ColorPicker
-import com.github.rahul_gill.recurrence.ui.components.DatePicker
 import com.github.rahul_gill.recurrence.ui.components.IconPicker
-import com.github.rahul_gill.recurrence.ui.components.TimePicker
 import com.github.rahul_gill.recurrence.ui.destinations.ReminderRepeatBottomSheetDestination
 import com.github.rahul_gill.recurrence.ui.destinations.TimeOnWeekDaysPickerDestination
 import com.github.rahul_gill.recurrence.ui.theme.AppTheme
-import com.github.rahul_gill.recurrence.utils.IconsUtil
+import com.github.rahul_gill.recurrence.utils.IconsUtil.getDrawableByName
+import com.github.rahul_gill.recurrence.utils.IconsUtil.iconMapX
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import java.time.DayOfWeek
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.color.ARGBPickerState
+import com.vanpra.composematerialdialogs.color.ColorPalette
+import com.vanpra.composematerialdialogs.color.colorChooser
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -50,20 +61,21 @@ fun CreateScreen(
     var description by remember { mutableStateOf("") }
     val time = remember { mutableStateOf(LocalTime.now()) }
     val date = remember { mutableStateOf(LocalDate.now()) }
-    var icon by remember { mutableStateOf("Notifications") }
-    var color by remember { mutableStateOf(0xFFFFFFFF) }
+    var icon by remember { mutableStateOf("Add Alert") }
+    var color by remember { mutableStateOf(Color.Black) }
     var timeText by remember { mutableStateOf(context.getString(R.string.action_show_now)) }
     var dateText by remember { mutableStateOf(context.getString(R.string.date_today)) }
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
     val dateFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy")
 
-    var timePickerVisible by remember { mutableStateOf(false) }
-    var datePickerVisible by remember { mutableStateOf(false) }
-    var colorPickerVisible by remember { mutableStateOf(false) }
     var iconPickerVisible by remember { mutableStateOf(false) }
 
+    val colorDialogState = rememberMaterialDialogState()
+    val timeDialogState = rememberMaterialDialogState()
+    val dateDialogState = rememberMaterialDialogState()
+
     var repetitionType by remember { mutableStateOf(RepetitionType.DOES_NOT_REPEAT) }
-    var timeForDaysOfWeeks by remember { mutableStateOf(mapOf<DayOfWeek, LocalTime>()) }
+    var timeForDaysOfWeeks by remember { mutableStateOf(TimeForDaysOfWeek()) }
 
     repetitionTypeResultRecipient.onResult { repeatType ->
         repetitionType = repeatType
@@ -75,6 +87,87 @@ fun CreateScreen(
 
     daysOfWeekResultRecipient.onResult {
         timeForDaysOfWeeks = it
+    }
+
+    MaterialDialog(
+        dialogState = colorDialogState,
+        buttons = {
+            positiveButton(stringResource(id = R.string.ok))
+            negativeButton(stringResource(id = R.string.cancel))
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(size = 16.dp)
+                )
+        ) {
+            Text(
+                text = LocalContext.current.getString(R.string.select_colour),
+                style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = 16.dp)
+            )
+
+            colorChooser(
+                colors = ColorPalette.Primary,
+                argbPickerState = ARGBPickerState.WithoutAlphaSelector
+            ) {
+                color = it
+            }
+        }
+    }
+    MaterialDialog(
+        dialogState = timeDialogState,
+        buttons = {
+            positiveButton(stringResource(id = R.string.ok))
+            negativeButton(stringResource(id = R.string.cancel))
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(size = 16.dp)
+                )
+        ) {
+            timepicker {
+                time.value = it
+                timeText = it.format(timeFormatter)
+            }
+        }
+    }
+    MaterialDialog(
+        dialogState = dateDialogState,
+        buttons = {
+            positiveButton(stringResource(id = R.string.ok))
+            negativeButton(stringResource(id = R.string.cancel))
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .background(
+                    color = MaterialTheme.colors.surface,
+                    shape = RoundedCornerShape(size = 16.dp)
+                )
+        ) {
+            datepicker {
+                date.value = it
+                dateText = it.format(dateFormatter)
+            }
+        }
+    }
+
+    if(iconPickerVisible){
+        IconPicker(
+            onIconSelected = { icon = it },
+            onDismissRequest = { iconPickerVisible = false }
+        )
     }
 
     Column {
@@ -105,12 +198,12 @@ fun CreateScreen(
                         content = description,
                         dateTime = LocalDateTime.of(date.value, time.value),
                         foreverState = false,//TODO
-                        numberToShow = 1,//TODO
+                        numberToShow = 5 * if(repetitionType == RepetitionType.SPECIFIC_DAYS) timeForDaysOfWeeks.size else 1,//TODO
                         numberShown = 0,
                         icon = icon,
-                        color =color,
+                        color = color.toArgb(),
                         repeatType = repetitionType,
-                        timeForDaysOfWeek = timeForDaysOfWeeks as TimeForDaysOfWeek,
+                        timeForDaysOfWeek = timeForDaysOfWeeks,
                         interval = 0
                     )
                     )
@@ -168,7 +261,9 @@ fun CreateScreen(
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
         Row (Modifier
-            .clickable { timePickerVisible = true }
+            .clickable {
+                timeDialogState.show()
+            }
             .fillMaxWidth()
         ){
             Icon(
@@ -184,7 +279,9 @@ fun CreateScreen(
         Divider(thickness = 0.5.dp, color = Color.Gray)
         Row (
             Modifier
-                .clickable { datePickerVisible = true }
+                .clickable {
+                    dateDialogState.show()
+                }
                 .fillMaxWidth()
         ){
             Icon(
@@ -203,7 +300,7 @@ fun CreateScreen(
                 .fillMaxWidth()
         ){
             Icon(
-                imageVector = IconsUtil.iconsMap[icon]!!,
+                painter = painterResource(id = context.getDrawableByName(iconMapX[icon]!!)),
                 contentDescription = "",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
             )
@@ -214,15 +311,16 @@ fun CreateScreen(
         Divider(thickness = 0.5.dp, color = Color.Gray)
         Row (
             Modifier
-                .clickable { colorPickerVisible = true }
+                .clickable {
+                    colorDialogState.show()
+                }
                 .fillMaxWidth()
         ){
-            Icon(
+            Image(
                 imageVector = Icons.Default.Palette,
                 contentDescription = "",
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .background(Color(color))
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                colorFilter = ColorFilter.tint(color)
             )
             Text(text = LocalContext.current.getString(R.string.default_colour),
                 modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp)
@@ -246,37 +344,6 @@ fun CreateScreen(
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
-    }
-
-    if(timePickerVisible){
-        TimePicker(
-            onTimeSelected = {
-                time.value = it
-                timeText = it.format(timeFormatter)
-            },
-            onDismissRequest = { timePickerVisible = false }
-        )
-    }
-    if(datePickerVisible){
-        DatePicker(
-            onDateSelected = {
-                date.value = it
-                dateText = it.format(dateFormatter)
-            },
-            onDismissRequest = { datePickerVisible = false }
-        )
-    }
-    if(iconPickerVisible){
-        IconPicker(
-            onIconSelected = { icon = it },
-            onDismissRequest = { iconPickerVisible = false }
-        )
-    }
-    if(colorPickerVisible){
-        ColorPicker(
-            onColorSelected = { color = it },
-            onDismissRequest = { colorPickerVisible = false }
-        )
     }
 
 

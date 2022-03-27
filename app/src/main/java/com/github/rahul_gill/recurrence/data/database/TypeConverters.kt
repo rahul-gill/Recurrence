@@ -1,5 +1,6 @@
 package com.github.rahul_gill.recurrence.data.database
 
+import androidx.compose.ui.graphics.Color
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import com.github.rahul_gill.recurrence.data.database.entities.TimeForDaysOfWeek
@@ -27,5 +28,12 @@ class TypeConverters {
     @TypeConverter
     fun timeForDaysOfWeekTOString(value: TimeForDaysOfWeek): String
         = Json.encodeToString(value)
+
+
+    @TypeConverter
+    fun colorFromULong(value: ULong): Color = Color(value)
+
+    @TypeConverter
+    fun colorToSULong(value: Color): ULong = value.value
 
 }
