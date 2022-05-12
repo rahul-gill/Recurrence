@@ -1,6 +1,7 @@
 package com.github.rahul_gill.recurrence.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -22,13 +23,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.github.rahul_gill.recurrence.R
 import com.github.rahul_gill.recurrence.data.database.entities.ReminderEntity
 import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
 import com.github.rahul_gill.recurrence.data.database.entities.TimeForDaysOfWeek
 import com.github.rahul_gill.recurrence.ui.AppViewModel
+import com.github.rahul_gill.recurrence.ui.components.ExpandableText
 import com.github.rahul_gill.recurrence.ui.destinations.CreateScreenDestination
 import com.github.rahul_gill.recurrence.ui.destinations.SettingsScreenDestination
 import com.github.rahul_gill.recurrence.ui.theme.AppTheme
@@ -37,6 +42,7 @@ import com.github.rahul_gill.recurrence.utils.IconsUtil.iconMapX
 import com.github.rahul_gill.recurrence.utils.argbToColorInt
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -45,12 +51,12 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MainScreen(navigator: DestinationsNavigator) = AppTheme {
     val viewModel: AppViewModel = hiltViewModel()
-    val reminders = viewModel.activeRemindersList.collectAsState(initial = emptyList())
+    val reminders = viewModel.activeRemindersListGrouped.collectAsState(initial = emptyMap())
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Title") },
+                title = { Text(stringResource(id = R.string.app_name)) },
                 actions = {
                     IconButton(onClick = { navigator.navigate(SettingsScreenDestination) }) {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "")
@@ -69,18 +75,29 @@ fun MainScreen(navigator: DestinationsNavigator) = AppTheme {
     )
 }
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RemindersListScreen(reminders: List<ReminderEntity> = List(5){ index -> sampleReminder(index) }) {
+fun RemindersListScreen(remindersMap: Map<LocalDate, List<ReminderEntity>>) {
 
     LazyColumn{
-        items(reminders, { it.notificationId }){ reminder ->
-            AnimatedVisibility(
-                visible = reminder in reminders,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                ReminderItem(reminder)
+        remindersMap.forEach { (date, reminders) ->
+            stickyHeader {
+                Text(
+                    text = date.format(DateTimeFormatter.ofPattern("d MMMM yyyy")),
+                    style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.primary, fontWeight = FontWeight.Bold),
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colors.surface.copy(alpha = 0.78f))
+                        .padding(start = 4.dp, top = 4.dp)
+                )
+            }
+            items(reminders){ reminder ->
+                AnimatedVisibility(
+                    visible = reminder in reminders,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    ReminderItem(reminder)
+                }
             }
         }
     }
@@ -89,8 +106,7 @@ fun RemindersListScreen(reminders: List<ReminderEntity> = List(5){ index -> samp
 @Composable
 fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder(1)){
     Card(
-        modifier = Modifier.padding(4.dp),
-        elevation = 2.dp,
+        modifier = Modifier.padding(vertical =  4.dp, horizontal = 8.dp)
     ) {
         Row(Modifier.padding(4.dp)) {
             Image(
@@ -102,7 +118,7 @@ fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder(1)){
                         shape = CircleShape
                     )
                     .padding(8.dp)
-                    .align(Alignment.CenterVertically),
+                    .align(Alignment.Top),
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.surface)
             )
             Column(
@@ -111,8 +127,9 @@ fun ReminderItem(reminderEntity: ReminderEntity = sampleReminder(1)){
                     .weight(1f)
             ) {
                 Text(text = reminderEntity.title, style = MaterialTheme.typography.body1, modifier = Modifier.padding(bottom = 4.dp))
-                //TODO make it expandable
-                Text(text = reminderEntity.content, style = MaterialTheme.typography.caption.copy(color = Color.Gray))
+                ExpandableText(
+                    text = reminderEntity.content,
+                    style = MaterialTheme.typography.caption.copy(color = Color.Gray))
             }
             Text(
                 text = reminderEntity.dateTime.format(DateTimeFormatter.ofPattern("hh:mm a")),

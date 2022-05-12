@@ -9,9 +9,12 @@ import com.github.rahul_gill.recurrence.data.preferences.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
+
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
@@ -23,11 +26,17 @@ class AppViewModel @Inject constructor(
         remindersRepository.addReminder(reminder.copy(notificationId = lastNotificationId.first() + 1))
     }
 
-    private val _activeRemindersList =  MutableStateFlow<List<ReminderEntity>>(emptyList())
+
+    private val _activeRemindersListGrouped =  MutableStateFlow<Map<LocalDate, List<ReminderEntity>>>(emptyMap())
+    val activeRemindersListGrouped: StateFlow<Map<LocalDate, List<ReminderEntity>>>
+        get() = _activeRemindersListGrouped
+
+//    private val _activeRemindersList =  MutableStateFlow<List<ReminderEntity>>(emptyList())
     private val _lastNotificationId = MutableStateFlow(1)
 
-    val activeRemindersList
-        get() = _activeRemindersList
+//    val activeRemindersList: StateFlow<List<ReminderEntity>>
+//        get() = _activeRemindersList
+
 
     val lastNotificationId
         get() = _lastNotificationId
@@ -36,7 +45,8 @@ class AppViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 remindersRepository.getActiveRemindersList().collect { activeReminders ->
-                    _activeRemindersList.value = activeReminders
+//                    _activeRemindersList.value = activeReminders
+                    _activeRemindersListGrouped.value = activeReminders.groupBy { it.dateTime.toLocalDate() }
                     Log.d("list", activeReminders.toString())
                 }
             }

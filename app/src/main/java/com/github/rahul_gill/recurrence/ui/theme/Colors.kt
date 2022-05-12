@@ -14,5 +14,5 @@ val DarkColors = darkColors(
 val LightColors = lightColors(
     primary = Color(0xff266199),
     secondary = Color(0xff995E26),
-    onPrimary = Color(0xFF222222),
+    onPrimary = Color(0xFFFFFFFF),
 )
