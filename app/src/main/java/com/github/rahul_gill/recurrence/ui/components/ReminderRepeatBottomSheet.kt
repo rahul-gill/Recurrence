@@ -9,8 +9,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.github.rahul_gill.recurrence.data.database.entities.RepetitionType
+import com.github.rahul_gill.recurrence.ui.theme.AppTheme
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -19,7 +21,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 @Composable
 fun ReminderRepeatBottomSheet(
     resultNavigator: ResultBackNavigator<RepetitionType>
-) {
+) = AppTheme{
     val repeatTypeNames = mapOf(
         RepetitionType.DOES_NOT_REPEAT to "Does not repeat",
         RepetitionType.HOURLY to "Every Hour",
@@ -38,12 +40,12 @@ fun ReminderRepeatBottomSheet(
                 elevation = 0.dp,
                 modifier = Modifier
                     .clickable { resultNavigator.navigateBack(result = repeatType.key) }
-                    .fillMaxWidth()
-                    .padding(bottom = 2.dp)
+                    .fillMaxWidth(),
+                shape = RectangleShape
             ) {
                 Text(
                     text = repeatType.value,
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.body1
                 )
             }

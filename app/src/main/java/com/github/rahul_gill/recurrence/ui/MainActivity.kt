@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
                     val bottomSheetNavigator = rememberBottomSheetNavigator()
                     navController.navigatorProvider += bottomSheetNavigator
+                    bottomSheetNavigator.navigatorSheetState
 
                     ModalBottomSheetLayout(
                         bottomSheetNavigator = bottomSheetNavigator,

@@ -5,7 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.rahul_gill.recurrence.R
@@ -54,7 +55,7 @@ fun CreateScreen(
     navigator: DestinationsNavigator,
     repetitionTypeResultRecipient: ResultRecipient<ReminderRepeatBottomSheetDestination, RepetitionType>,
     daysOfWeekResultRecipient: ResultRecipient<TimeOnWeekDaysPickerDestination, TimeForDaysOfWeek>
-) = AppTheme{
+) = AppTheme { Scaffold {
     val context = LocalContext.current
     val viewModel: AppViewModel = hiltViewModel()
     var name by remember { mutableStateOf("") }
@@ -62,7 +63,7 @@ fun CreateScreen(
     val time = remember { mutableStateOf(LocalTime.now()) }
     val date = remember { mutableStateOf(LocalDate.now()) }
     var icon by remember { mutableStateOf("Add Alert") }
-    var color by remember { mutableStateOf(Color.Black) }
+    var color by remember { mutableStateOf(Color(0xFFF44336)) }
     var timeText by remember { mutableStateOf(context.getString(R.string.action_show_now)) }
     var dateText by remember { mutableStateOf(context.getString(R.string.date_today)) }
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
@@ -76,11 +77,12 @@ fun CreateScreen(
 
     var repetitionType by remember { mutableStateOf(RepetitionType.DOES_NOT_REPEAT) }
     var timeForDaysOfWeeks by remember { mutableStateOf(TimeForDaysOfWeek()) }
+    var numberOfTimesToRepeat by remember { mutableStateOf(1) }
 
     repetitionTypeResultRecipient.onResult { repeatType ->
         repetitionType = repeatType
         Log.d("CreateScreen", "new repeat type: $repeatType")
-        if(repeatType == RepetitionType.SPECIFIC_DAYS){
+        if (repeatType == RepetitionType.SPECIFIC_DAYS) {
             navigator.navigate(TimeOnWeekDaysPickerDestination)
         }
     }
@@ -96,14 +98,7 @@ fun CreateScreen(
             negativeButton(stringResource(id = R.string.cancel))
         }
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(size = 16.dp)
-                )
-        ) {
+        Column {
             Text(
                 text = LocalContext.current.getString(R.string.select_colour),
                 style = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold),
@@ -111,7 +106,6 @@ fun CreateScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 16.dp)
             )
-
             colorChooser(
                 colors = ColorPalette.Primary,
                 argbPickerState = ARGBPickerState.WithoutAlphaSelector
@@ -127,18 +121,9 @@ fun CreateScreen(
             negativeButton(stringResource(id = R.string.cancel))
         }
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(size = 16.dp)
-                )
-        ) {
-            timepicker {
-                time.value = it
-                timeText = it.format(timeFormatter)
-            }
+        timepicker {
+            time.value = it
+            timeText = it.format(timeFormatter)
         }
     }
     MaterialDialog(
@@ -148,22 +133,13 @@ fun CreateScreen(
             negativeButton(stringResource(id = R.string.cancel))
         }
     ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(size = 16.dp)
-                )
-        ) {
-            datepicker {
-                date.value = it
-                dateText = it.format(dateFormatter)
-            }
+        datepicker {
+            date.value = it
+            dateText = it.format(dateFormatter)
         }
     }
 
-    if(iconPickerVisible){
+    if (iconPickerVisible) {
         IconPicker(
             onIconSelected = { icon = it },
             onDismissRequest = { iconPickerVisible = false }
@@ -194,18 +170,22 @@ fun CreateScreen(
                 onClick = {
                     viewModel.addReminder(
                         ReminderEntity(
-                        title = name,
-                        content = description,
-                        dateTime = LocalDateTime.of(date.value, time.value),
-                        foreverState = false,//TODO
-                        numberToShow = 5 * if(repetitionType == RepetitionType.SPECIFIC_DAYS) timeForDaysOfWeeks.size else 1,//TODO
-                        numberShown = 0,
-                        icon = icon,
-                        color = color.toArgb(),
-                        repeatType = repetitionType,
-                        timeForDaysOfWeek = timeForDaysOfWeeks,
-                        interval = 0
-                    )
+                            title = name,
+                            content = description,
+                            dateTime = LocalDateTime.of(date.value, time.value),
+                            foreverState = false,//TODO
+                            numberToShow =when(repetitionType) {
+                                RepetitionType.DOES_NOT_REPEAT -> 1
+                                RepetitionType.SPECIFIC_DAYS -> timeForDaysOfWeeks.size * numberOfTimesToRepeat
+                                else -> numberOfTimesToRepeat
+                            },
+                            numberShown = 0,
+                            icon = icon,
+                            color = color.toArgb(),
+                            repeatType = repetitionType,
+                            timeForDaysOfWeek = timeForDaysOfWeeks,
+                            interval = 0
+                        )
                     )
                     navigator.navigateUp()
                 },
@@ -220,11 +200,12 @@ fun CreateScreen(
                     )
                 }
             )
-            Column (modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(vertical = 16.dp, horizontal = 32.dp)
-                .fillMaxWidth()
-            ){
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(vertical = 16.dp, horizontal = 32.dp)
+                    .fillMaxWidth()
+            ) {
                 Text(
                     text = LocalContext.current.getString(R.string.title),
                     color = MaterialTheme.colors.onPrimary,
@@ -239,7 +220,7 @@ fun CreateScreen(
                 )
             }
         }
-        Row{
+        Row {
             Icon(
                 imageVector = Icons.Filled.Segment,
                 contentDescription = "",
@@ -260,12 +241,12 @@ fun CreateScreen(
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
-        Row (Modifier
+        Row(Modifier
             .clickable {
                 timeDialogState.show()
             }
             .fillMaxWidth()
-        ){
+        ) {
             Icon(
                 imageVector = Icons.Filled.Schedule,
                 contentDescription = "",
@@ -277,77 +258,115 @@ fun CreateScreen(
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
-        Row (
+        Row(
             Modifier
                 .clickable {
                     dateDialogState.show()
                 }
                 .fillMaxWidth()
-        ){
+        ) {
             Icon(
                 imageVector = Icons.Filled.Event,
                 contentDescription = "",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
             )
-            Text(text = dateText,
+            Text(
+                text = dateText,
                 modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp)
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
-        Row (
+        Row(
             Modifier
                 .clickable { iconPickerVisible = true }
                 .fillMaxWidth()
-        ){
+        ) {
             Icon(
                 painter = painterResource(id = context.getDrawableByName(iconMapX[icon]!!)),
                 contentDescription = "",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
             )
-            Text(text = LocalContext.current.getString(R.string.default_icon),
+            Text(
+                text = LocalContext.current.getString(R.string.default_icon),
                 modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp)
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
-        Row (
+        Row(
             Modifier
                 .clickable {
                     colorDialogState.show()
                 }
                 .fillMaxWidth()
-        ){
+        ) {
             Image(
                 imageVector = Icons.Default.Palette,
                 contentDescription = "",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
                 colorFilter = ColorFilter.tint(color)
             )
-            Text(text = LocalContext.current.getString(R.string.default_colour),
+            Text(
+                text = LocalContext.current.getString(R.string.default_colour),
                 modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp)
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
-        Row (
+        Row(
             Modifier
                 .clickable {
                     navigator.navigate(ReminderRepeatBottomSheetDestination)
                 }
                 .fillMaxWidth()
-        ){
+        ) {
             Icon(
                 imageVector = Icons.Default.Refresh,
                 contentDescription = "",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
             )
-            Text(text = LocalContext.current.resources.getStringArray(R.array.repeat_array)[0],
+            Text(
+                text = LocalContext.current.resources.getStringArray(R.array.repeat_array)[repetitionType.ordinal] +
+                    if(repetitionType != RepetitionType.SPECIFIC_DAYS) ""
+                    else "\n${timeForDaysOfWeeks.stringify()}",
                 modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp)
+            )
+        }
+        Divider(thickness = 0.5.dp, color = Color.Gray)
+        if(repetitionType != RepetitionType.DOES_NOT_REPEAT) Row {
+            Icon(
+                imageVector = Icons.Filled.Segment,
+                contentDescription = "",
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+            )
+            TextField(
+                value = numberOfTimesToRepeat.toString(),
+                onValueChange = {
+                    numberOfTimesToRepeat = if(it.isBlank()) 1
+                        else try {
+                            it.toInt()
+                    } catch(e: NumberFormatException){
+                        //TODO hardcode text
+                        android.widget.Toast.makeText(context, "Invalid number", android.widget.Toast.LENGTH_SHORT).show()
+                        1
+                    }
+                },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                label = { Text(text = LocalContext.current.getString(R.string.number_of_times_to_repeat)) },
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
         Divider(thickness = 0.5.dp, color = Color.Gray)
     }
 
 
-}
+}}
 
 
 @Composable

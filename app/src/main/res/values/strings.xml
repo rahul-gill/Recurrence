@@ -62,6 +62,7 @@
     <string name="times">times</string>
     <string name="repeat_notification">Number of times to repeat: </string>
     <string name="repeats_on">Repeats on:</string>
+    <string name="number_of_times_to_repeat">Number of times to repeat</string>
     <string name="repeat_every">Repeat every</string>
     <string name="repeats_every">Repeats every: %1$d %2$s</string>
     <string name="no_active">No active notifications</string>
